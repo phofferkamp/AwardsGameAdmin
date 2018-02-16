@@ -1,0 +1,285 @@
+<div class="modal fade" bsModal #loginModal="bs-modal" tabindex="-1" role="dialog" aria-hidden="true" [config]="{ignoreBackdropClick: true, keyboard: false}" (keyup.enter)="login()">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Login</h4>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" id="username" placeholder="Enter username" name="username" [(ngModel)]="loggedIn.name">
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" id="password" placeholder="Enter password" name="password" [(ngModel)]="loggedIn.password">
+          </div>
+          <small class="form-text text-danger" *ngIf="invalidLogin">
+            The username/password combination is invalid.
+          </small>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="login()">Login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" bsModal #deleteCategoryConfirmModal="bs-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" *ngIf="categoryToDelete">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Confirm delete category</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="deleteCategoryConfirmModal.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete {{categoryToDelete.title}}?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="deleteCategoryConfirmModal.hide()">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="confirmDeleteCategory(categoryToDelete);deleteCategoryConfirmModal.hide()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" bsModal #deleteUserConfirmModal="bs-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" *ngIf="userToDelete">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Confirm delete user</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="deleteUserConfirmModal.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete {{userToDelete.name}}?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="deleteUserConfirmModal.hide()">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="confirmDeleteUser(userToDelete);deleteUserConfirmModal.hide()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" bsModal #deleteFeedbackConfirmModal="bs-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" *ngIf="feedbackToDelete">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Confirm delete feedback</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="deleteFeedbackConfirmModal.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete {{ feedbackToDelete.date | date: 'short' }}?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="deleteFeedbackConfirmModal.hide()">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="confirmDeleteFeedback();deleteFeedbackConfirmModal.hide()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<tabset *ngIf="categories">
+  <tab heading="Config">
+    <form>
+      <div class="card">
+        <div class="card-header">
+          <label class="form-control-label">Game mode</label>
+        </div>
+        <div class="card-body">
+          <div class="form-group row">
+            <div class="btn-group d-flex col-12 col-md-4" role="group">
+              <label class="btn btn-primary w-100" [(ngModel)]="config.gameMode" btnRadio="before" name="before" (click)="saveConfig()">Before</label>
+              <label class="btn btn-primary w-100" [(ngModel)]="config.gameMode" btnRadio="during" name="during" (click)="saveConfig()">During</label>
+              <label class="btn btn-primary w-100" [(ngModel)]="config.gameMode" btnRadio="after" name="after" (click)="saveConfig()">After</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="config.gameMode === 'before'">
+        <div class="card-header">
+          <label class="form-control-label">Game start</label>
+        </div>
+        <div class="card-body">
+          <div class="form-group row">
+            <div class="col-12 col-md-4 form-group">
+              <input type="text" class="form-control" #dp="bsDatepicker" bsDatepicker [(bsValue)]="gameStart" [bsConfig]="bsConfig">
+              <timepicker name="gameStart" [(ngModel)]="gameStart"></timepicker>
+              <div class="btn-group" dropdown>
+                <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+                <span *ngIf="selectedZone">{{ selectedZone.zone }}</span>
+                <span class="caret"></span>
+              </button>
+                <ul *dropdownMenu class="dropdown-menu" role="menu">
+                  <li *ngFor="let timeZone of timeZones" role="menuitem" [style.background-color]="timeZone == selectedZone ? 'lightgray' : ''">
+                    <a class="dropdown-item" (click)="selectedZone = timeZone">{{ timeZone.zone }}</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row" *ngIf="config.gameMode === 'before'">
+            <label class="col-form-label col-4 col-md-2">Auto start</label>
+            <div class="d-flex btn-group col-8 col-md-3" role="group">
+              <label class="btn btn-primary w-100" [(ngModel)]="autoStart" btnRadio="false" name="false">O</label>
+              <label class="btn btn-primary w-100" [(ngModel)]="autoStart" btnRadio="true" name="true">I</label>
+            </div>
+          </div>
+          <div class="form-group row" *ngIf="config.gameMode === 'before'">
+            <div class="d-flex col-12 col-md-3 form-group">
+              <button type="button" class="btn btn-default w-100" (click)="resetGameStart()">Reset</button>
+              <button type="button" class="btn btn-primary w-100" (click)="saveGameStart()">Update</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row" *ngIf="config.gameMode === 'during' || config.gameMode === 'after'">
+        <div id="accordion" role="tablist" class="col-12">
+          <div class="card" *ngFor="let category of categories; let categoryIndex = index">
+            <div class="card-header" role="tab" id="heading{{ categoryIndex }}">
+              <h5 class="mb-0">
+                <a data-toggle="collapse" href="#collapse{{ categoryIndex }}" aria-expanded="true">
+              <i class="fa fa-caret-up" aria-hidden="true"></i><i class="fa fa-caret-down" aria-hidden="true"></i> {{ category.title }}
+            </a>
+              </h5>
+            </div>
+
+            <div id="collapse{{ categoryIndex }}" class="collapse show" role="tabpanel">
+              <div class="card-body" *ngFor="let nominee of category.nominees; let nomineeIndex = index" [class.bg-success]="nomineeIndex == category.winner" [class.text-white]="nomineeIndex == category.winner" [class.bg-light]="config.gameMode === 'after' && nomineeIndex != category.winner"
+                (click)="saveWinner(category, nomineeIndex)">
+                {{ nominee }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </tab>
+  <tab heading="Categories">
+    <form>
+      <div class="form-group row">
+        <label for="title" class="col-2 col-form-label">Title</label>
+        <div class="col-10">
+          <input class="form-control" type="text" name="title" [(ngModel)]="category.title">
+        </div>
+      </div>
+      <div class="form-group row">
+        <ul class="list-group">
+          <li class="list-group-item" *ngFor="let nominee of category.nominees; let i = index">
+            {{ nominee }}
+            <button (click)="deleteNominee(i)" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </li>
+        </ul>
+      </div>
+      <div class="form-group row">
+        <label for="nominee" class="col-3 col-md-2 col-form-label">Nominee</label>
+        <div class="col-7 col-md-8">
+          <input class="form-control" type="text" name="nominee" [(ngModel)]="nominee">
+        </div>
+        <button type="button" class="btn btn-primary col-2" (click)="addNominee()">Add</button>
+      </div>
+      <div class="form-group row">
+        <button *ngIf="activeIndex > -1" type="button" class="btn btn-default col-6 col-md-2" (click)="reloadCategories()">Cancel</button>
+        <button *ngIf="activeIndex > -1" type="button" class="btn btn-primary col-6 col-md-2" (click)="updateCategory()">Update Category</button>
+        <button *ngIf="activeIndex < 0" type="button" class="btn btn-primary col-6 col-md-2" (click)="addCategory()">Add Category</button>
+      </div>
+
+      <div class="form-group row">
+        <div class="list-group" [dragula]='"categories-bag"' [dragulaModel]='categories'>
+          <div class="list-group-item" *ngFor="let category of categories; let i = index" (click)="editCategory(i, category)" [class.active]="i == activeIndex">
+            {{ category.title }}
+            <button (click)="deleteCategory($event, category)" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </tab>
+  <tab heading="User">
+    <form>
+      <div class="form-group row">
+        <ul class="list-group">
+          <li class="list-group-item" *ngFor="let user of users; let i = index" (click)="editUser(i, user)" [class.active]="i == activeUserIndex">
+            {{ user.name }}
+            <!--<button *ngIf="user.admin != 'true'" (click)="deleteUser($event, user)" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>-->
+            <button (click)="deleteUser($event, user)" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </li>
+        </ul>
+      </div>
+      <div class="form-group row">
+        <label for="userName" class="col-3 col-md-2 col-form-label">Username</label>
+        <div class="col-6 col-md-8">
+          <input class="form-control" type="text" name="userName" id="userName" [(ngModel)]="user.name">
+        </div>
+        <button *ngIf="activeUserIndex > -1" type="button" class="btn btn-primary col-3 col-md-2" (click)="updateName()">Update</button>
+      </div>
+      <div class="form-group row">
+        <label for="userEmail" class="col-3 col-md-2 col-form-label">Email</label>
+        <div class="col-6 col-md-8">
+          <input class="form-control" type="text" name="userEmail" id="userEmail" [(ngModel)]="user.email">
+        </div>
+        <button *ngIf="activeUserIndex > -1" type="button" class="btn btn-primary col-3 col-md-2" (click)="updateEmail()">Update</button>
+      </div>
+      <div class="form-group row">
+        <label for="userPassword" class="col-3 col-md-2 col-form-label">Password</label>
+        <div class="col-6 col-md-8">
+          <input class="form-control" type="password" name="userPassword" id="userPassword" [(ngModel)]="user.password">
+        </div>
+        <button *ngIf="activeUserIndex > -1" type="button" class="btn btn-primary col-3 col-md-2" (click)="updatePassword()">Update</button>
+      </div>
+      <!--<div class="form-group row">-->
+      <!--  <label class="col-2 col-form-label" for="adminMode">Admin</label>-->
+      <!--  <div class="col-10 btn-group" id="adminMode">-->
+      <!--    <label class="col-1 btn btn-primary" [(ngModel)]="user.admin" btnRadio="false" name="before">O</label>-->
+      <!--    <label class="col-1 btn btn-primary" [(ngModel)]="user.admin" btnRadio="true" name="during">I</label>-->
+      <!--  </div>-->
+      <!--</div>-->
+      <div class="form-group row">
+        <button *ngIf="activeUserIndex > -1" type="button" class="btn btn-default col-6 col-md-2" (click)="reloadUsers()">Cancel</button>
+        <!--<button *ngIf="activeUserIndex > -1" type="button" class="btn btn-primary col-2" (click)="updateUser()">Update User</button>-->
+        <button *ngIf="activeUserIndex < 0" type="button" class="btn btn-primary col-6 col-md-2" (click)="addUser()">Add User</button>
+      </div>
+
+      <div class="form-group row">
+        <table class="table">
+          <tbody>
+            <tr *ngFor="let pick of picks">
+              <td>{{ pick.title }}</td>
+              <th scope="row">{{ pick.nominee }}</th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </form>
+  </tab>
+  <tab heading="Feedback">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Name</th>
+          <th scope="col">Email</th>
+          <th scope="col">Feedback</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let feedbackItem of feedbackItems">
+          <th scope="row">{{ feedbackItem.date | date: 'short' }}</th>
+          <td>{{ feedbackItem.name }}</td>
+          <td><a href="mailto:{{ feedbackItem.email }}">{{ feedbackItem.email }}</a></td>
+          <td>{{ feedbackItem.feedback }}</td>
+          <td><button (click)="deleteFeedback($event, feedbackItem)" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button></td>
+        </tr>
+      </tbody>
+    </table>
+  </tab>
+</tabset>
